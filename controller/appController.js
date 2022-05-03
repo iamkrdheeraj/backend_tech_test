@@ -37,7 +37,7 @@ const getCoinPriceForListOfTokens = async () => {
         let dataArray = [];
         let token = await getTokenListTokenFromSdk();
         // for (let tok =0;tok < token.length; tok++) {
-            for (let tok =0;tok < 10; tok++) {
+        for (let tok = 0; tok < 30; tok++) {
             let getAPIResponseInUSD = await CoinGeckoClient.simple.fetchTokenPrice({
                 contract_addresses: token[tok]['address'],
                 vs_currencies: 'usd',
@@ -47,27 +47,37 @@ const getCoinPriceForListOfTokens = async () => {
                 vs_currencies: 'gbp',
             });
             let dataObj = {
-                ...token,
+                address: token[tok]['address'],
+                chainId: token[tok]['chainId'],
+                decimals: token[tok]['decimals'],
+                logoURI: token[tok]['logoURI'],
+                name: token[tok]['name'],
+                symbol: token[tok]['symbol'],
                 flat_price_USD: (getAPIResponseInUSD && getAPIResponseInUSD.data && Object.keys(getAPIResponseInUSD.data).length ? getAPIResponseInUSD.data[token[tok]['address'].toLowerCase()].usd : ''),
                 flat_price_GBP: (getAPIResponseInGBP && getAPIResponseInGBP.data && Object.keys(getAPIResponseInGBP.data).length ? getAPIResponseInGBP.data[token[tok]['address'].toLowerCase()].gbp : ''),
 
             }
-            // console.log("dataObj ::",dataObj);
             dataArray.push(dataObj);
-            
+
         }
-        console.log("dataArray ::", dataArray);
-        return dataArray;
+        // console.log("dataArray ::", dataArray);
+        // return dataArray;
+        return {
+            status: 200,
+            data: dataArray
+        }
 
 
     } catch (err) {
         console.log("Problem during getting price of token");
-        throw err;
+        return {
+            status: 500,
+            error: 'Something going worng during getting price of token ...'
+        }
     }
 
 }
-getCoinPriceForListOfTokens();
 
-module.exports={
+module.exports = {
     getCoinPriceForListOfTokens
 }
